@@ -1,28 +1,26 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Board, Column, JobApplication } from "../models/models.types";
 import { updateJobApplication } from "../actions/job-applications";
 
 export function useBoard(initialBoard?: Board | null) {
 	const [board, setBoard] = useState<Board | null>(initialBoard || null);
 	const [columns, setColumns] = useState<Column[] | null>(
-		initialBoard?.columns || null,
+		initialBoard ? initialBoard.columns || [] : null,
 	);
 	const [error, setError] = useState<string | null>(null);
-
-	useEffect(() => {
-		if (initialBoard) {
-			setBoard(initialBoard);
-			setColumns(initialBoard.columns || []);
-		}
-	}, [initialBoard]);
 
 	const moveJob = async (
 		jobApplicationId: string,
 		newColumnId: string,
 		newOrder: number,
 	) => {
+		let updatedJobApplication: JobApplication | null = null;
+
+    let previousColumns: Column[] | null = null;
+
 		setColumns((prev) => {
+      previousColumns = prev;
 			const newColumns: Column[] = prev
 				? prev.map((col) => ({
 					...col,
@@ -57,16 +55,22 @@ export function useBoard(initialBoard?: Board | null) {
 					const currentJobs = targetColumn.jobApplications || [];
 
 					const updatedJobs = [...currentJobs];
-					updatedJobs.splice(newOrder, 0, {
+					const movedJob = {
 						...jobToMove,
 						columnId: newColumnId,
 						order: newOrder * 100,
-					});
+					};
+					updatedJobs.splice(newOrder, 0, movedJob);
 
 					const jobWithUpdatedOrders = updatedJobs.map((job, idx) => ({
 						...job,
 						order: idx * 100,
 					}));
+
+					updatedJobApplication = {
+						...movedJob,
+						order: newOrder * 100,
+					};
 
 					newColumns[targetColumnIndex] = {
 						...targetColumn,
@@ -77,15 +81,17 @@ export function useBoard(initialBoard?: Board | null) {
 			return newColumns;
 		});
 
-    try {
-      const result = await updateJobApplication(jobApplicationId, {
-        columnId: newColumnId,
-        order: newOrder,
-      });
-      
-    } catch(err) {
-      console.error("Error: ", err);
-    }
+		if (!updatedJobApplication) {
+			return;
+		}
+
+		try {
+			await updateJobApplication(jobApplicationId, updatedJobApplication);
+		} catch (err) {
+			console.error("Error: ", err);
+      setColumns(previousColumns);
+			setError("Failed to move job application");
+		}
 	};
 
 	return { board, columns, error, moveJob };

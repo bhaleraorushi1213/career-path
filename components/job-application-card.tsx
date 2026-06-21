@@ -67,6 +67,8 @@ const JobApplicationCard = ({ job, columns, dragHandleProps }: JobApplicationCar
   const handleMove = async (newColumnId: string) => {
     try {
       const result = await updateJobApplication(job._id, {
+        company: job.company,
+        position: job.position,
         columnId: newColumnId,
       });
     } catch (err) {
