@@ -17,7 +17,10 @@ export function useBoard(initialBoard?: Board | null) {
 	) => {
 		let updatedJobApplication: JobApplication | null = null;
 
+    let previousColumns: Column[] | null = null;
+
 		setColumns((prev) => {
+      previousColumns = prev;
 			const newColumns: Column[] = prev
 				? prev.map((col) => ({
 					...col,
@@ -86,6 +89,8 @@ export function useBoard(initialBoard?: Board | null) {
 			await updateJobApplication(jobApplicationId, updatedJobApplication);
 		} catch (err) {
 			console.error("Error: ", err);
+      setColumns(previousColumns);
+			setError("Failed to move job application");
 		}
 	};
 
