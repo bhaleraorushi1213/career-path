@@ -1,0 +1,24 @@
+"use client";
+
+import { signOut } from "@/lib/auth/auth-client"
+import { DropdownMenuItem } from "./ui/dropdown-menu"
+import { useRouter } from "next/navigation";
+
+export const SignOutButton = () => {
+  const router = useRouter()
+  return (
+    <DropdownMenuItem
+      onClick={async () => {
+        const result = await signOut()
+        if (result.data) {
+          router.push("/login")
+        } else {
+          alert("Error signing out")
+        }
+      }}
+      className={"cursor-pointer"}
+    >
+      Log Out
+    </DropdownMenuItem>
+  )
+}
