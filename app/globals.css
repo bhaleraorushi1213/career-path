@@ -4,133 +4,228 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--font-sans: var(--font-dm-sans);
+	--font-mono: var(--font-geist-mono);
+	--color-sidebar-ring: var(--sidebar-ring);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar: var(--sidebar-background);
+	--color-chart-5: var(--chart-5);
+	--color-chart-4: var(--chart-4);
+	--color-chart-3: var(--chart-3);
+	--color-chart-2: var(--chart-2);
+	--color-chart-1: var(--chart-1);
+	--color-ring: var(--ring);
+	--color-input: var(--input);
+	--color-border: var(--border);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-accent: var(--accent);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-muted: var(--muted);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-secondary: var(--secondary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-primary: var(--primary);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-popover: var(--popover);
+	--color-card-foreground: var(--card-foreground);
+	--color-card: var(--card);
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: #f76382;
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.145 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.98 0.01 340);
-  --accent-foreground: #f76382;
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: #f76382;
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: #f76382;
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.98 0.01 340);
-  --sidebar-accent-foreground: #f76382;
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: #f76382;
+	/* CareerPath Steel Trust Palette */
+	--cp-bg: #10151c;
+	--cp-surface: #1e2a38;
+	--cp-primary: #4a6c8f;
+	--cp-gold: #d9a441;
+	--cp-text: #e8edf2;
+	--cp-text-muted: #7a90a4;
+	--cp-border: #2a3d52;
+
+	--radius: 0.75rem;
+	--background: hsl(213 31% 8%);
+	--foreground: hsl(210 30% 92%);
+	--card: hsl(213 28% 17%);
+	--card-foreground: hsl(210 30% 92%);
+	--popover: hsl(213 28% 12%);
+	--popover-foreground: hsl(210 30% 92%);
+	--primary: hsl(210 32% 42%);
+	--primary-foreground: hsl(210 30% 98%);
+	--secondary: hsl(213 28% 20%);
+	--secondary-foreground: hsl(210 30% 85%);
+	--muted: hsl(213 28% 22%);
+	--muted-foreground: hsl(210 20% 60%);
+	--accent: hsl(38 65% 55%);
+	--accent-foreground: hsl(213 31% 8%);
+	--destructive: hsl(0 62% 45%);
+	--destructive-foreground: hsl(210 40% 98%);
+	--border: hsl(213 28% 25%);
+	--input: hsl(213 28% 20%);
+	--ring: hsl(38 65% 55%);
+	--chart-1: hsl(38 65% 55%);
+	--chart-2: hsl(210 32% 55%);
+	--chart-3: hsl(160 45% 45%);
+	--chart-4: hsl(280 40% 55%);
+	--chart-5: hsl(0 55% 55%);
+	--sidebar-background: hsl(213 31% 10%);
+	--sidebar-foreground: hsl(210 30% 85%);
+	--sidebar-primary: hsl(38 65% 55%);
+	--sidebar-primary-foreground: hsl(213 31% 8%);
+	--sidebar-accent: hsl(213 28% 18%);
+	--sidebar-accent-foreground: hsl(210 30% 85%);
+	--sidebar-border: hsl(213 28% 22%);
+	--sidebar-ring: hsl(38 65% 55%);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: #f76382;
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+	--background: hsl(213 31% 8%);
+	--foreground: hsl(210 30% 92%);
+	--card: hsl(213 28% 17%);
+	--card-foreground: hsl(210 30% 92%);
+	--popover: hsl(213 28% 12%);
+	--popover-foreground: hsl(210 30% 92%);
+	--primary: hsl(210 32% 42%);
+	--primary-foreground: hsl(210 30% 98%);
+	--secondary: hsl(213 28% 20%);
+	--secondary-foreground: hsl(210 30% 85%);
+	--muted: hsl(213 28% 22%);
+	--muted-foreground: hsl(210 20% 60%);
+	--accent: hsl(38 65% 55%);
+	--accent-foreground: hsl(213 31% 8%);
+	--destructive: hsl(0 62% 45%);
+	--destructive-foreground: hsl(210 40% 98%);
+	--border: hsl(213 28% 25%);
+	--input: hsl(213 28% 20%);
+	--ring: hsl(38 65% 55%);
+	--chart-1: hsl(38 65% 55%);
+	--chart-2: hsl(210 32% 55%);
+	--chart-3: hsl(160 45% 45%);
+	--chart-4: hsl(280 40% 55%);
+	--chart-5: hsl(0 55% 55%);
+	--sidebar-background: hsl(213 31% 10%);
+	--sidebar-foreground: hsl(210 30% 85%);
+	--sidebar-primary: hsl(38 65% 55%);
+	--sidebar-primary-foreground: hsl(213 31% 8%);
+	--sidebar-accent: hsl(213 28% 18%);
+	--sidebar-accent-foreground: hsl(210 30% 85%);
+	--sidebar-border: hsl(213 28% 22%);
+	--sidebar-ring: hsl(38 65% 55%);
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background text-foreground;
+		font-family: "DM Sans", sans-serif;
+	}
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-family: "Space Grotesk", sans-serif;
+	}
 }
 
 /* Add cursor pointer to buttons by default */
 @layer base {
-  button:not(:disabled),
-  [type="button"]:not(:disabled) {
-    cursor: pointer;
-  }
+	button:not(:disabled),
+	[type="button"]:not(:disabled) {
+		cursor: pointer;
+	}
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+	.scrollbar-hide::-webkit-scrollbar {
+		display: none;
+	}
+	.scrollbar-hide {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+	.board-scroll::-webkit-scrollbar {
+		height: 6px;
+	}
+	.board-scroll::-webkit-scrollbar-track {
+		background: #10151c;
+	}
+	.board-scroll::-webkit-scrollbar-thumb {
+		background: #2a3d52;
+		border-radius: 3px;
+	}
+	.board-scroll::-webkit-scrollbar-thumb:hover {
+		background: #4a6c8f;
+	}
+}
+
+/* 1. Hide the scrollbar by default (set width to 0) */
+.scroll-container {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+
+.scroll-container::-webkit-scrollbar {
+  width: 0px; /* Chrome, Safari, Opera */
+  background: transparent;
+}
+
+/* 2. Show the scrollbar when hovering the container */
+.scroll-container:hover {
+  scrollbar-width: thin;
+}
+
+.scroll-container:hover::-webkit-scrollbar {
+  width: 8px; /* Thickness when visible */
+}
+
+/* 3. Style the thumb so it looks clean when it appears */
+.scroll-container:hover::-webkit-scrollbar-thumb {
+  background: #2a3d52;
+  border-radius: 4px;
+}
+
+/* 1. Global scrollbar width for Firefox */
+html {
+  scrollbar-width: thin; /* No quotes */
+  scrollbar-color: #2a3d52 #10151c; /* thumb-color track-color */
+}
+
+/* 2. WebKit browsers (Chrome, Edge, Safari) */
+html::-webkit-scrollbar {
+  width: 8px; /* Set the width of the scrollbar */
+}
+
+html::-webkit-scrollbar-track {
+  background: #10151c;
+}
+
+html::-webkit-scrollbar-thumb {
+  background: #2a3d52;
+  border-radius: 3px;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: #4a6c8f;
+}
+
+/* 3. THIS IS WHAT HIDES THE ARROWS */
+html::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+  width: 0;
 }

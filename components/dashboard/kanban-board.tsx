@@ -1,15 +1,24 @@
 "use client"
 
 import { Board, Column, JobApplication } from "@/lib/models/models.types";
-import { Award, Calendar, CheckCircle2, Mic, MoreVertical, Trash2, XCircle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { Inbox, Mic, Send, Star, XCircle } from "lucide-react";
 import CreateJobApplicationDialog from "./create-job-dialog";
 import JobApplicationCard from "./job-application-card";
 import { useBoard } from "@/lib/hooks/useBoard";
-import { closestCorners, DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useDroppable, useSensor, useSensors } from "@dnd-kit/core";
+import {
+  closestCorners,
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  useDroppable,
+  useSensor,
+  useSensors
+} from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { motion } from "framer-motion";
 import { useState } from "react";
 
 interface KanbanBoardProps {
@@ -18,31 +27,49 @@ interface KanbanBoardProps {
 }
 
 interface ColConfig {
-  color: string; icon: React.ReactNode
+  color: string;
+  accentColor: string;
+  icon: React.ReactNode;
+  emptyHeadline: string;
+  emptySub: string;
 }
 
-const COLUMN_CONFIG: Array<ColConfig> = [
+const COLUMN_CONFIG: ColConfig[] = [
   {
-    color: "bg-cyan-500",
-    icon: <Calendar className="h-4 w-4" />
+    color: "#4a6c8f",
+    accentColor: "#6a8caf",
+    icon: <Inbox className="w-4 h-4" />,
+    emptyHeadline: "Dream big.",
+    emptySub: "Add roles you're excited about.",
   },
   {
-    color: "bg-purple-500",
-    icon: <CheckCircle2 className="h-4 w-4" />
+    color: "#5a7fa0",
+    accentColor: "#7a9fc0",
+    icon: <Send className="w-4 h-4" />,
+    emptyHeadline: "Ready to launch?",
+    emptySub: "Track submitted applications here.",
   },
   {
-    color: "bg-green-500",
-    icon: <Mic className="h-4 w-4" />
+    color: "#d9a441",
+    accentColor: "#e9b461",
+    icon: <Mic className="w-4 h-4" />,
+    emptyHeadline: "No interviews yet.",
+    emptySub: "Keep applying — they'll come.",
   },
   {
-    color: "bg-yellow-500",
-    icon: <Award className="h-4 w-4" />
+    color: "#3a9668",
+    accentColor: "#4ab678",
+    icon: <Star className="w-4 h-4" />,
+    emptyHeadline: "Offers incoming.",
+    emptySub: "Your hard work pays off here.",
   },
   {
-    color: "bg-red-500",
-    icon: <XCircle className="h-4 w-4" />
+    color: "#8f4a4a",
+    accentColor: "#af6a6a",
+    icon: <XCircle className="w-4 h-4" />,
+    emptyHeadline: "Clear slate.",
+    emptySub: "Every no brings you closer to yes.",
   },
-
 ];
 
 const DroppableColumn = ({
@@ -67,50 +94,85 @@ const DroppableColumn = ({
   const sortedJobs = column.jobApplications.sort((a, b) => a.order - b.order) || [];
 
   return (
-    <Card className="min-w-75 shrink-0 shadow-md p-0">
-      <CardHeader className={`${config.color} text-white rounded-t-lg py-3`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+    <div
+      className="flex flex-col shrink-0 rounded-2xl overflow-hidden w-full lg:w-70.5 h-87.5 lg:h-full"
+      style={{
+        background: isOver ? "rgba(74,108,143,0.08)" : "rgba(16,21,28,0.6)",
+        border: isOver ? `1px solid ${config.color}` : "1px solid #1e2a38",
+        transition: "border-color 0.2s, background 0.2s",
+      }}
+    >
+      {/* COLUMN HEADER */}
+      <div
+        className="px-4 py-3 flex items-center justify-between border-b border-[#1e2a38] bg-[rgba(30,42,56,0.8)]"
+      >
+        <div className="flex items-center gap-2">
+          <div
+            className={`w-7 h-7 rounded-lg flex items-center justify-center`}
+            style={{ background: `${config.color}22`, color: `${config.color}` }}
+          >
             {config.icon}
-            <CardTitle className="text-white text-base font-semibold">
-              {column.name}
-            </CardTitle>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger className="h-6 w-6 text-white hover:bg-white/20 rounded-lg">
-              <MoreVertical className="h-6 w-6" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem className="text-destructive ">
-                <Trash2 className=" h-4 w-4" />
-                Delete Column
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-
-          </DropdownMenu>
+          <span
+            className="text-sm font-semibold text-white"
+            style={{ fontFamily: "Space Grotesk, sans-serif" }}
+          >
+            {column.name}
+          </span>
         </div>
-      </CardHeader>
+        <div
+          className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+          style={{ background: `${config.color}33`, color: config.color }}
+        >
+          {sortedJobs.length}
+        </div>
+      </div>
 
-      <CardContent
+      {/* CARDS AREA */}
+      <div
         ref={setNodeRef}
-        className={`space-y-2 pt-4 bg-gray-50/50 min-h-100 rounded-b-lg ${isOver ? "ring-2 ring-blue-500" : ""}`}
+        className="flex-1 p-3 flex flex-row lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto lg:min-h-100"
+        style={{ scrollbarWidth: "none" }}
       >
         <SortableContext
           items={sortedJobs.map((job) => job._id)}
           strategy={verticalListSortingStrategy}
         >
-
-          {sortedJobs.map((job, key) => (
+          {sortedJobs.map((job) => (
             <SortableJobCard
-              key={key}
+              key={job._id}
               job={{ ...job, columnId: job.columnId || column._id }}
               columns={sortedColumns}
             />
           ))}
         </SortableContext>
+
+        {sortedJobs.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex-1 flex flex-col items-center justify-center text-center py-12 px-4"
+          >
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
+              style={{ background: `${config.color}15`, color: `${config.color}80` }}
+            >
+              {config.icon}
+            </div>
+            <p
+              className="text-sm font-semibold text-white mb-1"
+              style={{ fontFamily: "Space Grotesk, sans-serif" }}
+            >
+              {config.emptyHeadline}
+            </p>
+            <p className="text-xs text-[#7a90a4]">{config.emptySub}</p>
+          </motion.div>
+        )}
+      </div>
+      <div className="p-3">
         <CreateJobApplicationDialog columnId={column._id} boardId={boardId} />
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
 
@@ -134,6 +196,7 @@ const SortableJobCard = ({ job, columns }: { job: JobApplication; columns: Colum
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+    rotate: isDragging ? "2deg" : "0deg",
   }
 
   return (
@@ -153,11 +216,13 @@ const KanbanBoard = ({ board, userId }: KanbanBoardProps) => {
 
   const sortedColumns = columns?.sort((a, b) => a.order - b.order) || [];
 
-  const sensors = useSensors(useSensor(PointerSensor, {
-    activationConstraint: {
-      distance: 8,
-    }
-  }))
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      }
+    })
+  );
 
   const handleDragStart = async (event: DragStartEvent) => {
     setActiveId(event.active.id as string)
@@ -202,9 +267,10 @@ const KanbanBoard = ({ board, userId }: KanbanBoardProps) => {
 
     if (targetColumn) {
       targetColumnId = targetColumn._id;
-      const jobsInTarget = targetColumn.jobApplications
-        .filter((j) => j._id !== activeId)
-        .sort((a, b) => a.order - b.order)
+      const jobsInTarget =
+        targetColumn.jobApplications
+          .filter((j) => j._id !== activeId)
+          .sort((a, b) => a.order - b.order) || [];
 
       newOrder = jobsInTarget.length;
     } else if (targetJob) {
@@ -260,7 +326,9 @@ const KanbanBoard = ({ board, userId }: KanbanBoardProps) => {
     await moveJob(activeId, targetColumnId, newOrder);
   }
 
-  const activeJob = sortedColumns.flatMap((col) => col.jobApplications || []).find((job) => job._id === activeId)
+  const activeJob = sortedColumns
+    .flatMap((col) => col.jobApplications || [])
+    .find((job) => job._id === activeId)
 
   return (
     <DndContext
@@ -269,32 +337,37 @@ const KanbanBoard = ({ board, userId }: KanbanBoardProps) => {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="space-y-4">
-        <div className="flex gap-4 overflow-x-auto pb-4">
-          {sortedColumns.map((col, key) => {
-            const config = COLUMN_CONFIG[key] || {
-              color: "bg-cyan-500",
-              icon: <Calendar className="h-4 w-4" />
-            };
-
-            return (
-              <DroppableColumn
-                key={key}
-                column={col}
-                config={config}
-                boardId={board._id}
-                sortedColumns={sortedColumns}
-              />)
-          })}
-        </div>
+      <div
+        className="flex flex-col lg:flex-row gap-y-6 lg:gap-x-4 overflow-x-auto pb-6 px-6 scroll-container"
+        style={{
+          scrollbarWidth: "thin",
+          scrollbarColor: "#2a3d52 #10151c",
+          scrollBehavior: "smooth",
+        }}
+      >
+        {sortedColumns.map((col, key) => {
+          const config = COLUMN_CONFIG[key] || COLUMN_CONFIG[0];
+          return (
+            <DroppableColumn
+              key={key}
+              column={col}
+              config={config}
+              boardId={board._id}
+              sortedColumns={sortedColumns}
+            />
+          );
+        })}
       </div>
+
       <DragOverlay>
         {activeJob ? (
-          <div className="opacity-50">
-            <JobApplicationCard job={activeJob} columns={sortedColumns} />
+          <div style={{ opacity: 0.5, rotate: "2deg", scale: "1.03" }}>
+            <JobApplicationCard
+              job={activeJob}
+              columns={sortedColumns}
+            />
           </div>
-        ) : null
-        }
+        ) : null}
       </DragOverlay>
     </DndContext>
   )
