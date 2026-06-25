@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getSession } from "../auth/auth";
 import connectDB from "../db";
 import { Board, Column, JobApplication } from "../models";
+import { revalidateTag } from "next/cache";
 
 interface JobApplicationData {
 	company: string;
@@ -66,6 +67,8 @@ export const createJobApplication = async (data: JobApplicationData) => {
 		.select("order")
 		.lean()) as { order: number } | null;
 
+	const newOrder = maxOrder ? maxOrder.order + 1 : 0;
+
 	const jobApplication = await JobApplication.create({
 		company,
 		position,
@@ -79,7 +82,7 @@ export const createJobApplication = async (data: JobApplicationData) => {
 		tags: tags || [],
 		description,
 		status: "applied",
-		order: maxOrder ? maxOrder.order + 1 : 0,
+		order: newOrder,
 	});
 
 	await Column.findByIdAndUpdate(columnId, {
@@ -88,7 +91,8 @@ export const createJobApplication = async (data: JobApplicationData) => {
 		},
 	});
 
-	revalidatePath("/dashboard");
+	// revalidateTag(`board-${session.user.id}`, "max");
+	revalidatePath("/dashboard", "page");
 
 	return { data: JSON.parse(JSON.stringify(jobApplication)) };
 };
@@ -164,7 +168,7 @@ export const updateJobApplication = async (
 			const jobsThatNeedToShift = jobsInTargetColumn.slice(order);
 			for (const job of jobsThatNeedToShift) {
 				await JobApplication.findByIdAndUpdate(job._id, {
-					$set: { order: job.order * 100 },
+					$set: { order: job.order + 100 },
 				});
 			}
 		} else {
@@ -172,7 +176,7 @@ export const updateJobApplication = async (
 				const lastJobOrder =
 					jobsInTargetColumn[jobsInTargetColumn.length - 1].order || 0;
 
-				newOrderValue = lastJobOrder * 100;
+				newOrderValue = lastJobOrder + 100;
 			} else {
 				newOrderValue = 0;
 			}
@@ -209,7 +213,7 @@ export const updateJobApplication = async (
 
 			for (const job of jobsToShiftDown) {
 				await JobApplication.findByIdAndUpdate(job._id, {
-					$set: { order: job.order * 100 },
+					$set: { order: job.order + 100 },
 				});
 			}
 		} else if (order > oldPositionIndex) {
@@ -230,7 +234,8 @@ export const updateJobApplication = async (
 		new: true,
 	});
 
-	revalidatePath("/dashboard");
+	// revalidateTag(`board-${session.user.id}`, "max");
+	revalidatePath("/dashboard", "page");
 
 	return { data: JSON.parse(JSON.stringify(updated)) };
 };
@@ -258,7 +263,8 @@ export const deleteJobApplication = async (id: string) => {
 
 	await JobApplication.deleteOne({ _id: id });
 
-	revalidatePath("/dashboard");
+	// revalidateTag(`board-${session.user.id}`, "max");
+	revalidatePath("/dashboard", "page");
 
 	return { success: true };
 };
