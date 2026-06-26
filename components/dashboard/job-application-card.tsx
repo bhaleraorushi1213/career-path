@@ -505,7 +505,7 @@ const JobApplicationCard = ({ job, columns, dragHandleProps }: JobApplicationCar
             {/* EXPAND BUTTON */}
             <button
               onClick={() => setShowDetail(true)}
-              className="w-7 h-7 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[#4a6c8f]/20 text-gray-400 hover:text-white"
+              className="w-7 h-7 rounded-lg flex items-center justify-center opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity hover:bg-[#4a6c8f]/20 text-gray-400 hover:text-white"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -514,7 +514,7 @@ const JobApplicationCard = ({ job, columns, dragHandleProps }: JobApplicationCar
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setShowMenu((v) => !v)}
-                className="w-7 h-7 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[#2a3d52] text-gray-400 hover:text-white"
+                className="w-7 h-7 rounded-lg flex items-center justify-center opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity hover:bg-[#2a3d52] text-gray-400 hover:text-white"
               >
                 <MoreVertical className="w-4 h-4" />
               </button>

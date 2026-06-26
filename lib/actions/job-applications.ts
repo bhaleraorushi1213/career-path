@@ -92,7 +92,7 @@ export const createJobApplication = async (data: JobApplicationData) => {
 	});
 
 	// revalidateTag(`board-${session.user.id}`, "max");
-	revalidatePath("/dashboard", "page");
+	revalidatePath("/dashboard");
 
 	return { data: JSON.parse(JSON.stringify(jobApplication)) };
 };
@@ -100,13 +100,13 @@ export const createJobApplication = async (data: JobApplicationData) => {
 export const updateJobApplication = async (
 	id: string,
 	updates: {
-		company: string;
-		position: string;
+		company?: string;
+		position?: string;
 		location?: string;
 		notes?: string;
 		salary?: string;
 		jobUrl?: string;
-		columnId: string;
+		columnId?: string;
 		order?: number;
 		tags?: string[];
 		description?: string;
@@ -133,14 +133,14 @@ export const updateJobApplication = async (
 	const updatesToApply: Partial<{
 		company: string;
 		position: string;
-		location?: string;
-		notes?: string;
-		salary?: string;
-		jobUrl?: string;
+		location: string;
+		notes: string;
+		salary: string;
+		jobUrl: string;
 		columnId: string;
-		order?: number;
-		tags?: string[];
-		description?: string;
+		order: number;
+		tags: string[];
+		description: string;
 	}> = otherUpdates;
 
 	const currentColumnId = jobApplication.columnId.toString();
@@ -235,7 +235,7 @@ export const updateJobApplication = async (
 	});
 
 	// revalidateTag(`board-${session.user.id}`, "max");
-	revalidatePath("/dashboard", "page");
+	revalidatePath("/dashboard");
 
 	return { data: JSON.parse(JSON.stringify(updated)) };
 };
@@ -264,7 +264,7 @@ export const deleteJobApplication = async (id: string) => {
 	await JobApplication.deleteOne({ _id: id });
 
 	// revalidateTag(`board-${session.user.id}`, "max");
-	revalidatePath("/dashboard", "page");
+	revalidatePath("/dashboard");
 
 	return { success: true };
 };
