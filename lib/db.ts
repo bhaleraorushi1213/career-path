@@ -46,11 +46,11 @@ async function connectDB() {
 	}
 	try {
 		cached.conn = await cached.promise;
-		return cached.conn;
 	} catch (e) {
 		cached.promise = null;
 		throw e;
 	}
+	return cached.conn;	
 }
 
 export default connectDB;
