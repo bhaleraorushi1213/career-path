@@ -1,29 +1,39 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 import { Column, JobApplication } from "@/lib/models/models.types";
 import { updateJobApplication, deleteJobApplication } from "@/lib/actions/job-applications";
 import { AnimatePresence, motion } from "framer-motion"
-import { ChevronLeft, ChevronRight, Edit2, GripVertical, IndianRupee, MapPin, MoreVertical, Trash2, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Edit2,
+  GripVertical,
+  IndianRupee,
+  Loader,
+  Loader2Icon,
+  MapPin,
+  MoreVertical,
+  Trash2,
+  X
+} from "lucide-react";
 import { SlideOverPortal } from "./slide-over-portal";
 import JobDetailSheet from "./job-detail-sheet";
-import { useRouter } from "next/navigation";
 
 interface JobApplicationCardProps {
   job: JobApplication,
   columns: Column[],
   dragHandleProps?: React.HTMLAttributes<HTMLElement>;
-  onExpand?: (job: JobApplication) => void;
 }
-
-const STEPS = ["Details", "Compensation", "Notes"];
-
 interface EditApplicationProps {
   job: JobApplication;
   columns: Column[];
   onClose: () => void;
 }
+
+const STEPS = ["Details", "Compensation", "Notes"];
 
 const EditApplication = ({ job, onClose }: EditApplicationProps) => {
   const [step, setStep] = useState(0);
@@ -71,10 +81,7 @@ const EditApplication = ({ job, onClose }: EditApplicationProps) => {
     try {
       const result = await updateJobApplication(job._id, {
         ...formData,
-        tags: formData.tags
-          .split(",")
-          .map((tag) => tag.trim())
-          .filter((tag) => tag.length > 0),
+        tags: formData.tags.split(",").map((tag) => tag.trim()).filter((tag) => tag.length > 0),
       });
 
       if (result && !result.error) {
@@ -403,6 +410,7 @@ const JobApplicationCard = ({ job, columns, dragHandleProps }: JobApplicationCar
   const [showEdit, setShowEdit] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -435,6 +443,7 @@ const JobApplicationCard = ({ job, columns, dragHandleProps }: JobApplicationCar
   }, [showMenu]);
 
   const handleDelete = async () => {
+    setIsDeleting(true);
     try {
       const result = await deleteJobApplication(job._id);
 
@@ -445,39 +454,61 @@ const JobApplicationCard = ({ job, columns, dragHandleProps }: JobApplicationCar
       }
     } catch (err) {
       console.error("Failed to delete job application: ", err);
+    } finally {
+      setIsDeleting(false);
     }
   }
 
-  // const handleMove = async (newColumnId: string) => {
-  //   try {
-  //     const result = await updateJobApplication(job._id, {
-  //       company: job.company,
-  //       position: job.position,
-  //       columnId: newColumnId,
-  //     });
+  const handleShowDetail = () => {
+    setShowDetail(true);
+    disableScroll();
+  }
 
-  //     if (result.error) {
-  //       console.error("Failed to move job application: ", result.error);
-  //     }
+  const handleShowEdit = () => {
+    setShowMenu(false);
+    setShowEdit(true);
+    disableScroll();
+  }
 
-  //   } catch (err) {
-  //     console.error("Failed to move job application: ", err);
-  //   }
-  // }
+  const handleShowDetailClose = () => {
+    setShowDetail(false)
+    enableScroll();
+  }
+
+  const handleShowEditClose = () => {
+    setShowEdit(false);
+    enableScroll();
+  }
+
+  const disableScroll = () => {
+    document.body.classList.add('overflow-hidden');
+  }
+
+  const enableScroll = () => {
+    document.body.classList.remove('overflow-hidden');
+  }
 
   return (
     <>
       <motion.div
         layout
-        className="rounded-xl p-4 cursor-default select-none group w-75 lg:w-full h-50 lg:h-62.5"
+        className="relative rounded-xl p-4 cursor-default select-none group w-75 lg:w-full h-50 lg:h-62.5"
         style={{
           background: "linear-gradient(135deg, #1e2a38 0%, #1a2330 100%)",
           border: "1px solid #2a3d52",
           boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+          opacity: isDeleting ? 0.5 : 1
         }}
         whileHover={{ y: -2, boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}
 
       >
+        {/* Loader */}
+        {isDeleting && (
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-100">
+            <Loader2Icon className="w-8 h-8 text-[#4a6c8f] animate-spin" />
+          </div>
+        )}
+
         {/* HEADER */}
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="flex items-center gap-2 min-w-0">
@@ -504,7 +535,7 @@ const JobApplicationCard = ({ job, columns, dragHandleProps }: JobApplicationCar
 
             {/* EXPAND BUTTON */}
             <button
-              onClick={() => setShowDetail(true)}
+              onClick={handleShowDetail}
               className="w-7 h-7 rounded-lg flex items-center justify-center opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity hover:bg-[#4a6c8f]/20 text-gray-400 hover:text-white"
             >
               <ChevronRight className="w-4 h-4" />
@@ -527,33 +558,13 @@ const JobApplicationCard = ({ job, columns, dragHandleProps }: JobApplicationCar
                     className={`absolute right-0 top-8 rounded-xl py-1 bg-[#1e2a38] border border-[#2a3d52] shadow-[0_8px_24px_rgba(0,0,0,0.4)] min-w-30 ${showMenu ? "overflow-visible" : "overflow-hidden"}`}
                   >
                     <button
-                      onClick={() => {
-                        setShowMenu(false);
-                        setShowEdit(true);
-                      }}
+                      onClick={handleShowEdit}
                       className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[#a0b4c8] hover:bg-[#2a3d52] hover:text-white transition-colors"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
                       Edit
                     </button>
-                    {/* {columns.length > 1 && (
-                      <>
-                        {columns
-                          .filter((c) => c._id !== job.columnId)
-                          .map((column, key) => (
-                            <button
-                              key={key}
-                              className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[#a0b4c8] hover:bg-[#2a3d52] hover:text-white transition-colors text-start"
-                              onClick={() => {
-                                setShowMenu(false);
-                                handleMove(column._id);
-                              }}
-                            >
-                              Move to {column.name}
-                            </button>
-                          ))}
-                      </>
-                    )} */}
+                
                     <button
                       onClick={() => {
                         setShowMenu(false);
@@ -620,13 +631,12 @@ const JobApplicationCard = ({ job, columns, dragHandleProps }: JobApplicationCar
 
       {/* JOB DETAIL SHEET SIDEOVER */}
       <SlideOverPortal>
-
         <AnimatePresence>
           {showDetail && (
             <JobDetailSheet
               job={job}
               columns={columns}
-              onClose={() => setShowDetail(false)}
+              onClose={handleShowDetailClose}
               onEdit={() => { setShowDetail(false); setShowEdit(true); }}
             />
           )}
@@ -637,7 +647,11 @@ const JobApplicationCard = ({ job, columns, dragHandleProps }: JobApplicationCar
       <SlideOverPortal>
         <AnimatePresence>
           {showEdit && (
-            <EditApplication job={job} columns={columns} onClose={() => setShowEdit(false)} />
+            <EditApplication
+              job={job}
+              columns={columns}
+              onClose={handleShowEditClose}
+            />
           )}
         </AnimatePresence>
       </SlideOverPortal>

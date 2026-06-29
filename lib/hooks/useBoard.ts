@@ -5,105 +5,106 @@ import { Board, Column, JobApplication } from "../models/models.types";
 import { updateJobApplication } from "../actions/job-applications";
 
 export function useBoard(initialBoard?: Board | null) {
-  const [board, setBoard] = useState<Board | null>(initialBoard || null);
-  const [columns, setColumns] = useState<Column[]>(initialBoard?.columns || []);
-  const [error, setError] = useState<string | null>(null);
+	const [board, setBoard] = useState<Board | null>(initialBoard || null);
+	const [columns, setColumns] = useState<Column[]>(initialBoard?.columns || []);
+	const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (initialBoard) {
-      setBoard(initialBoard);
-      setColumns(initialBoard.columns || []);
-    }
-  }, [initialBoard]);
+	useEffect(() => {
+		if (initialBoard) {
+			setBoard(initialBoard);
+			setColumns(initialBoard.columns || []);
+		}
+	}, [initialBoard]);
 
-  async function moveJob(
-    jobApplicationId: string,
-    newColumnId: string,
-    newOrder: number
-  ) {
-    
-		let jobToMove: JobApplication | null = null;
+	async function moveJob(
+		jobApplicationId: string,
+		newColumnId: string,
+		newOrder: number,
+	) {
+
+    const previousColumns = columns;
+		const hasLocalJob = columns.some((col) =>
+			col.jobApplications.some((job) => job._id === jobApplicationId),
+		);
+
+		const hasTargetColumn = columns.some((col) => col._id === newColumnId);
+
+		if (!hasLocalJob || !hasTargetColumn) {
+			setError("Unable to move job");
+			return;
+		}
+
 		setColumns((prev) => {
-      const newColumns = prev.map((col) => ({
-        ...col,
-        jobApplications: [...col.jobApplications],
-      }));
+			const newColumns = prev.map((col) => ({
+				...col,
+				jobApplications: [...col.jobApplications],
+			}));
 
-      // Find and remove job from the old column
+			// Find and remove job from the old column
+			let jobToMove: JobApplication | null = null;
+			let oldColumnId: string | null = null;
 
-      let oldColumnId: string | null = null;
+			for (const col of newColumns) {
+				const jobIndex = col.jobApplications.findIndex(
+					(j) => j._id === jobApplicationId,
+				);
+				if (jobIndex !== -1 && jobIndex !== undefined) {
+					jobToMove = col.jobApplications[jobIndex];
+					oldColumnId = col._id;
+					col.jobApplications = col.jobApplications.filter(
+						(job) => job._id !== jobApplicationId,
+					);
+					break;
+				}
+			}
 
-      for (const col of newColumns) {
-        const jobIndex = col.jobApplications.findIndex(
-          (j) => j._id === jobApplicationId
-        );
-        if (jobIndex !== -1 && jobIndex !== undefined) {
-          jobToMove = col.jobApplications[jobIndex];
-          oldColumnId = col._id;
-          col.jobApplications = col.jobApplications.filter(
-            (job) => job._id !== jobApplicationId
-          );
-          break;
-        }
-      }
+			if (jobToMove && oldColumnId) {
+				const targetColumnIndex = newColumns.findIndex(
+					(col) => col._id === newColumnId,
+				);
+				if (targetColumnIndex !== -1) {
+					const targetColumn = newColumns[targetColumnIndex];
+					const currentJobs = targetColumn.jobApplications || [];
 
-      if (jobToMove && oldColumnId) {
-        const targetColumnIndex = newColumns.findIndex(
-          (col) => col._id === newColumnId
-        );
-        if (targetColumnIndex !== -1) {
-          const targetColumn = newColumns[targetColumnIndex];
-          const currentJobs = targetColumn.jobApplications || [];
+					const updatedJobs = [...currentJobs];
+					updatedJobs.splice(newOrder, 0, {
+						...jobToMove,
+						columnId: newColumnId,
+						order: newOrder * 100,
+					});
 
-          const updatedJobs = [...currentJobs];
-          updatedJobs.splice(newOrder, 0, {
-            ...jobToMove,
-            columnId: newColumnId,
-            order: newOrder * 100,
-          });
+					const jobsWithUpdatedOrders = updatedJobs.map((job, idx) => ({
+						...job,
+						order: idx * 100,
+					}));
 
-          const jobsWithUpdatedOrders = updatedJobs.map((job, idx) => ({
-            ...job,
-            order: idx * 100,
-          }));
+					newColumns[targetColumnIndex] = {
+						...targetColumn,
+						jobApplications: jobsWithUpdatedOrders,
+					};
+				}
+			}
 
-          newColumns[targetColumnIndex] = {
-            ...targetColumn,
-            jobApplications: jobsWithUpdatedOrders,
-          };
-        }
-      }
+			return newColumns;
+		});
 
-      return newColumns;
-    });
+		try {
 
-    try {
-      if (!jobToMove) {
-        return;
-      }
-
-      const job = jobToMove as JobApplication;
-
-      const result = await updateJobApplication(jobApplicationId, {
-        company: job.company,
-        position: job.position,
-        location: job.location,
-        notes: job.notes,
-        salary: job.salary,
-        jobUrl: job.jobUrl,
-        tags: job.tags,
-        description: job.description,
-        columnId: newColumnId,
-        order: newOrder,
-      });
+			const result = await updateJobApplication(jobApplicationId, {
+				columnId: newColumnId,
+				order: newOrder,
+			});
 
 			if (result.error) {
+        setColumns(previousColumns);
 				setError(result.error);
 			}
-    } catch (err) {
-      console.error("Error", err);
-    }
-  }
+		} catch (err) {
+      setColumns(previousColumns);
+			setError("Unable to move job");
+			console.error("Error", err);
+		}
+	}
 
-  return { board, columns, error, moveJob };
+	return { board, columns, error, moveJob };
 }
