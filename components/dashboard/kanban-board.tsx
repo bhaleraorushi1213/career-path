@@ -92,7 +92,7 @@ const DroppableColumn = ({
   })
 
   const sortedJobs =
-    column.jobApplications.sort((a, b) => a.order - b.order) || [];
+    [...(column.jobApplications || [])].sort((a, b) => a.order - b.order);
 
   return (
     <div
@@ -139,9 +139,9 @@ const DroppableColumn = ({
           items={sortedJobs.map((job) => job._id)}
           strategy={verticalListSortingStrategy}
         >
-          {sortedJobs.map((job, key) => (
+          {sortedJobs.map((job) => (
             <SortableJobCard
-              key={key}
+              key={job._id}
               job={{ ...job, columnId: job.columnId || column._id }}
               columns={sortedColumns}
             />
@@ -256,7 +256,7 @@ const KanbanBoard = ({ board, userId }: KanbanBoardProps) => {
 
     for (const column of sortedColumns) {
       const jobs =
-        column.jobApplications.sort((a, b) => a.order - b.order) || [];
+        [...(column.jobApplications || [])].sort((a, b) => a.order - b.order);
       const jobIndex = jobs.findIndex((j) => j._id === activeId);
 
       if (jobIndex !== -1) {
@@ -357,7 +357,7 @@ const KanbanBoard = ({ board, userId }: KanbanBoardProps) => {
             const config = COLUMN_CONFIG[key] || COLUMN_CONFIG[0];
             return (
               <DroppableColumn
-                key={key}
+                key={col._id}
                 column={col}
                 config={config}
                 boardId={board._id}

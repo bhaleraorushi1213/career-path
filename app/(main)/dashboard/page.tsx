@@ -38,6 +38,14 @@ const DashboardPage = async () => {
 
   const board = await getBoard(session?.user.id ?? "");
 
+  if (!board) {
+    return (
+      <div className="px-4 sm:px-6 lg:px-8 py-10 text-sm text-[#7a90a4]">
+        No board found yet.
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="pt-24" style={{ scrollbarWidth: "thin", scrollbarColor: "#2a3d52 #10151c" }}>
@@ -50,7 +58,7 @@ const DashboardPage = async () => {
               <p className="text-[#7a90a4] text-sm mt-1">Tracking 5 roles across your search</p>
             </div>
 
-            <div className=" w-auto">
+            <div className=" w-auto mx-auto">
               <div className="bg-[#1e2a38]/50 border border-[#2a3d52] rounded-xl p-4 flex items-center justify-between">
                 <div className="text-sm flex items-start gap-2">
                   <p className="text-white font-medium">Pro-tip: <span className="text-[#7a90a4]">

@@ -21,6 +21,19 @@ export function useBoard(initialBoard?: Board | null) {
 		newColumnId: string,
 		newOrder: number,
 	) {
+
+    const previousColumns = columns;
+		const hasLocalJob = columns.some((col) =>
+			col.jobApplications.some((job) => job._id === jobApplicationId),
+		);
+
+		const hasTargetColumn = columns.some((col) => col._id === newColumnId);
+
+		if (!hasLocalJob || !hasTargetColumn) {
+			setError("Unable to move job");
+			return;
+		}
+
 		setColumns((prev) => {
 			const newColumns = prev.map((col) => ({
 				...col,
@@ -83,9 +96,12 @@ export function useBoard(initialBoard?: Board | null) {
 			});
 
 			if (result.error) {
+        setColumns(previousColumns);
 				setError(result.error);
 			}
 		} catch (err) {
+      setColumns(previousColumns);
+			setError("Unable to move job");
 			console.error("Error", err);
 		}
 	}

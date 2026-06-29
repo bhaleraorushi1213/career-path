@@ -12,6 +12,8 @@ import {
   Edit2,
   GripVertical,
   IndianRupee,
+  Loader,
+  Loader2Icon,
   MapPin,
   MoreVertical,
   Trash2,
@@ -408,6 +410,7 @@ const JobApplicationCard = ({ job, columns, dragHandleProps }: JobApplicationCar
   const [showEdit, setShowEdit] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -440,6 +443,7 @@ const JobApplicationCard = ({ job, columns, dragHandleProps }: JobApplicationCar
   }, [showMenu]);
 
   const handleDelete = async () => {
+    setIsDeleting(true);
     try {
       const result = await deleteJobApplication(job._id);
 
@@ -450,6 +454,8 @@ const JobApplicationCard = ({ job, columns, dragHandleProps }: JobApplicationCar
       }
     } catch (err) {
       console.error("Failed to delete job application: ", err);
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -486,15 +492,23 @@ const JobApplicationCard = ({ job, columns, dragHandleProps }: JobApplicationCar
     <>
       <motion.div
         layout
-        className="rounded-xl p-4 cursor-default select-none group w-75 lg:w-full h-50 lg:h-62.5"
+        className="relative rounded-xl p-4 cursor-default select-none group w-75 lg:w-full h-50 lg:h-62.5"
         style={{
           background: "linear-gradient(135deg, #1e2a38 0%, #1a2330 100%)",
           border: "1px solid #2a3d52",
           boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+          opacity: isDeleting ? 0.5 : 1
         }}
         whileHover={{ y: -2, boxShadow: "0 8px 24px rgba(0,0,0,0.4)" }}
 
       >
+        {/* Loader */}
+        {isDeleting && (
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-100">
+            <Loader2Icon className="w-8 h-8 text-[#4a6c8f] animate-spin" />
+          </div>
+        )}
+
         {/* HEADER */}
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="flex items-center gap-2 min-w-0">
