@@ -2,8 +2,7 @@
 
 import { Board, Column, JobApplication } from "@/lib/models/models.types";
 import { Inbox, Mic, Send, Star, XCircle } from "lucide-react";
-import CreateJobApplicationDialog from "./create-job-dialog";
-import JobApplicationCard from "./job-application-card";
+import { useState } from "react";
 import { useBoard } from "@/lib/hooks/useBoard";
 import {
   closestCorners,
@@ -19,7 +18,8 @@ import {
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import CreateJobApplicationDialog from "./create-job-dialog";
+import JobApplicationCard from "./job-application-card";
 
 interface KanbanBoardProps {
   board: Board;
@@ -91,7 +91,8 @@ const DroppableColumn = ({
     }
   })
 
-  const sortedJobs = column.jobApplications.sort((a, b) => a.order - b.order) || [];
+  const sortedJobs =
+    column.jobApplications.sort((a, b) => a.order - b.order) || [];
 
   return (
     <div
@@ -131,16 +132,16 @@ const DroppableColumn = ({
       {/* CARDS AREA */}
       <div
         ref={setNodeRef}
-        className="flex-1 p-3 flex flex-row lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto lg:min-h-100"
+        className={`flex-1 p-3 flex flex-row lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto lg:min-h-100 ${isOver ? "ring-2 ring-red-500" : ""}`}
         style={{ scrollbarWidth: "none" }}
       >
         <SortableContext
           items={sortedJobs.map((job) => job._id)}
           strategy={verticalListSortingStrategy}
         >
-          {sortedJobs.map((job) => (
+          {sortedJobs.map((job, key) => (
             <SortableJobCard
-              key={job._id}
+              key={key}
               job={{ ...job, columnId: job.columnId || column._id }}
               columns={sortedColumns}
             />
@@ -170,13 +171,22 @@ const DroppableColumn = ({
         )}
       </div>
       <div className="p-3">
-        <CreateJobApplicationDialog columnId={column._id} boardId={boardId} />
+        <CreateJobApplicationDialog
+          columnId={column._id}
+          boardId={boardId}
+          trigger="button"
+        />
       </div>
     </div>
   )
 }
 
-const SortableJobCard = ({ job, columns }: { job: JobApplication; columns: Column[] }) => {
+const SortableJobCard = ({
+  job,
+  columns }: {
+    job: JobApplication;
+    columns: Column[];
+  }) => {
   const {
     attributes,
     listeners,
@@ -216,6 +226,8 @@ const KanbanBoard = ({ board, userId }: KanbanBoardProps) => {
 
   const sortedColumns = columns?.sort((a, b) => a.order - b.order) || [];
 
+  const firstColumnId = sortedColumns[0]?._id || "";
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -243,7 +255,8 @@ const KanbanBoard = ({ board, userId }: KanbanBoardProps) => {
     let sourceIndex = -1;
 
     for (const column of sortedColumns) {
-      const jobs = column.jobApplications.sort((a, b) => a.order - b.order) || [];
+      const jobs =
+        column.jobApplications.sort((a, b) => a.order - b.order) || [];
       const jobIndex = jobs.findIndex((j) => j._id === activeId);
 
       if (jobIndex !== -1) {
@@ -258,9 +271,7 @@ const KanbanBoard = ({ board, userId }: KanbanBoardProps) => {
 
     // Check if dropped in a column or another job
     const targetColumn = sortedColumns.find((col) => col._id === overId);
-    const targetJob = sortedColumns
-      .flatMap((col) => col.jobApplications || [])
-      .find((job) => job._id === overId)
+    const targetJob = sortedColumns.flatMap((col) => col.jobApplications || []).find((job) => job._id === overId);
 
     let targetColumnId: string;
     let newOrder: number;
@@ -268,9 +279,7 @@ const KanbanBoard = ({ board, userId }: KanbanBoardProps) => {
     if (targetColumn) {
       targetColumnId = targetColumn._id;
       const jobsInTarget =
-        targetColumn.jobApplications
-          .filter((j) => j._id !== activeId)
-          .sort((a, b) => a.order - b.order) || [];
+        targetColumn.jobApplications.filter((j) => j._id !== activeId).sort((a, b) => a.order - b.order) || [];
 
       newOrder = jobsInTarget.length;
     } else if (targetJob) {
@@ -310,7 +319,7 @@ const KanbanBoard = ({ board, userId }: KanbanBoardProps) => {
             newOrder = targetIndexInFiltered;
           }
         } else {
-          newOrder = targetIndexInFiltered
+          newOrder = targetIndexInFiltered;
         }
       } else {
         newOrder = allJobsInTargetFiltered.length;
@@ -326,51 +335,57 @@ const KanbanBoard = ({ board, userId }: KanbanBoardProps) => {
     await moveJob(activeId, targetColumnId, newOrder);
   }
 
-  const activeJob = sortedColumns
-    .flatMap((col) => col.jobApplications || [])
-    .find((job) => job._id === activeId)
+  const activeJob = sortedColumns.flatMap((col) => col.jobApplications || []).find((job) => job._id === activeId);
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCorners}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
-      <div
-        className="flex flex-col lg:flex-row gap-y-6 lg:gap-x-4 overflow-x-auto pb-6 px-6 scroll-container"
-        style={{
-          scrollbarWidth: "thin",
-          scrollbarColor: "#2a3d52 #10151c",
-          scrollBehavior: "smooth",
-        }}
+    <>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCorners}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
       >
-        {sortedColumns.map((col, key) => {
-          const config = COLUMN_CONFIG[key] || COLUMN_CONFIG[0];
-          return (
-            <DroppableColumn
-              key={key}
-              column={col}
-              config={config}
-              boardId={board._id}
-              sortedColumns={sortedColumns}
-            />
-          );
-        })}
-      </div>
+        <div
+          className="flex flex-col lg:flex-row gap-y-6 lg:gap-x-4 overflow-x-auto pb-6 px-6 scroll-container h-full"
+          style={{
+            scrollbarWidth: "thin",
+            scrollbarColor: "#2a3d52 #10151c",
+            scrollBehavior: "smooth",
+          }}
+        >
+          {sortedColumns.map((col, key) => {
+            const config = COLUMN_CONFIG[key] || COLUMN_CONFIG[0];
+            return (
+              <DroppableColumn
+                key={key}
+                column={col}
+                config={config}
+                boardId={board._id}
+                sortedColumns={sortedColumns}
+              />
+            );
+          })}
+        </div>
 
-      <DragOverlay>
-        {activeJob ? (
-          <div style={{ opacity: 0.5, rotate: "2deg", scale: "1.03" }}>
-            <JobApplicationCard
-              job={activeJob}
-              columns={sortedColumns}
-            />
-          </div>
-        ) : null}
-      </DragOverlay>
-    </DndContext>
-  )
+        <DragOverlay>
+          {activeJob ? (
+            <div style={{ opacity: 0.5, rotate: "2deg", scale: "1.03" }}>
+              <JobApplicationCard
+                job={activeJob}
+                columns={sortedColumns}
+              />
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+
+      <CreateJobApplicationDialog
+        columnId={firstColumnId}
+        boardId={board._id}
+        trigger="fab"
+      />
+    </>
+  );
 }
 
 export default KanbanBoard;

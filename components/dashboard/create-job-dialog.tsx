@@ -9,7 +9,8 @@ import { useRouter } from "next/navigation";
 
 interface CreateJobApplicationdialogProps {
   columnId: string,
-  boardId: string
+  boardId: string,
+  trigger?: "button" | "fab";
 }
 
 const STEPS = ["Details", "Compensation", "Notes"];
@@ -26,7 +27,9 @@ const INITIAL_FORMDATA = {
 }
 
 const CreateJobApplicationDialog = ({
-  columnId, boardId
+  columnId,
+  boardId,
+  trigger = "button"
 }: CreateJobApplicationdialogProps) => {
   const [open, setOpen] = useState<boolean>(false);
   const [step, setStep] = useState(0);
@@ -56,10 +59,7 @@ const CreateJobApplicationDialog = ({
         ...formData,
         columnId,
         boardId,
-        tags: formData.tags
-          .split(",")
-          .map((tag) => tag.trim())
-          .filter((tag) => tag.length > 0),
+        tags: formData.tags.split(",").map((tag) => tag.trim()).filter((tag) => tag.length > 0),
       });
 
       if (result && !result.error) {
@@ -119,7 +119,7 @@ const CreateJobApplicationDialog = ({
 
   return (
     <>
-      <SlideOverPortal>
+      {trigger === "fab" && (<SlideOverPortal>
         <motion.button
           type="button"
           onClick={() => setOpen(true)}
@@ -134,9 +134,9 @@ const CreateJobApplicationDialog = ({
         >
           <Plus className="w-6 h-6 text-[#10151c] font-bold" strokeWidth={2.5} />
         </motion.button>
-      </SlideOverPortal>
+      </SlideOverPortal>)}
 
-      <button
+      {trigger === "button" && (<button
         type="button"
         onClick={() => setOpen(true)}
         className="w-full mb-2 flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all text-[#7a90a4] border border-[#2a3d52] font-['DM Sans', sans-serif] border-dashed bg-transparent"
@@ -151,7 +151,7 @@ const CreateJobApplicationDialog = ({
       >
         <Plus className="w-4 h-4" />
         Add job
-      </button>
+      </button>)}
 
       <SlideOverPortal>
 

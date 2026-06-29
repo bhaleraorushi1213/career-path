@@ -62,10 +62,7 @@ export const createJobApplication = async (data: JobApplicationData) => {
 		return { error: "Column not found" };
 	}
 
-	const maxOrder = (await JobApplication.findOne({ columnId })
-		.sort({ order: -1 })
-		.select("order")
-		.lean()) as { order: number } | null;
+	const maxOrder = (await JobApplication.findOne({ columnId }).sort({ order: -1 }).select("order").lean()) as { order: number } | null;
 
 	const newOrder = maxOrder ? maxOrder.order + 1 : 0;
 
@@ -118,6 +115,8 @@ export const updateJobApplication = async (
 		return { error: "Unauthorized" };
 	}
 
+	await connectDB(); 
+
 	const jobApplication = await JobApplication.findById(id);
 
 	if (!jobApplication) {
@@ -156,9 +155,7 @@ export const updateJobApplication = async (
 		const jobsInTargetColumn = await JobApplication.find({
 			columnId: newColumnId,
 			_id: { $ne: id },
-		})
-			.sort({ order: 1 })
-			.lean();
+		}).sort({ order: 1 }).lean();
 
 		let newOrderValue: number;
 
@@ -192,9 +189,7 @@ export const updateJobApplication = async (
 		const otherJobsInColumn = await JobApplication.find({
 			columnId: currentColumnId,
 			_id: { $ne: id },
-		})
-			.sort({ order: 1 })
-			.lean();
+		}).sort({ order: 1 }).lean();
 
 		const currentJobOrder = jobApplication.order || 0;
 		const currentPositionIndex = otherJobsInColumn.findIndex(
